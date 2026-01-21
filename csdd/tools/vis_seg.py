@@ -23,6 +23,8 @@ def main() -> None:
     register_all("seg")
     # Required for mmsegmentation==1.2.2: ensure the custom dataset class is registered.
     import csdd.data.seg_dataset  # noqa: F401
+    # (Optional) Register custom metrics in case the checkpoint was trained with them.
+    import csdd.metrics.fg_iou_metric  # noqa: F401
 
     from mmseg.apis import inference_model, init_model
     from mmseg.visualization import SegLocalVisualizer

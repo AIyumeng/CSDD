@@ -12,6 +12,10 @@ def build_seg_cfg(
     work_dir: str = "work_dirs/seg",
     classes: list[str] = ("background", "Scratches", "Spots", "Rusts"),
     img_size: tuple[int, int] = (1024, 1024),
+    # Pixel-wise class imbalance is extreme (background dominates). A practical starting
+    # point is log-smoothed inverse-frequency weights (estimated after resizing to 1024).
+    # Order: [background, Scratches, Spots, Rusts]
+    ce_class_weight: tuple[float, ...] = (1.0, 33.7, 35.2, 33.9),
     max_epochs: int = 80,
     batch_size: int = 2,
     num_workers: int = 2,
@@ -20,6 +24,8 @@ def build_seg_cfg(
 ) -> dict:
     """MMSegmentation U-Net baseline config for CSDD."""
     num_classes = len(classes)
+    if len(ce_class_weight) != num_classes:
+        raise ValueError(f"ce_class_weight must have len(classes)={num_classes}, got {len(ce_class_weight)}")
     metainfo = {
         "classes": tuple(classes),
         # Default palette; change if you need consistent colors for your report.
@@ -50,6 +56,10 @@ def build_seg_cfg(
         default_scope="mmseg",
         work_dir=work_dir,
         randomness=dict(seed=seed),
+        # Required by mmseg.apis.inference_model (mmsegmentation==1.2.2), which reads
+        # `cfg.test_pipeline` to build the data pipeline for single-image inference.
+        train_pipeline=train_pipeline,
+        test_pipeline=test_pipeline,
         model=dict(
             type="EncoderDecoder",
             data_preprocessor=dict(
@@ -85,7 +95,12 @@ def build_seg_cfg(
                 num_classes=num_classes,
                 norm_cfg=dict(type="BN", requires_grad=True),
                 align_corners=False,
-                loss_decode=dict(type="CrossEntropyLoss", use_sigmoid=False, loss_weight=1.0),
+                loss_decode=dict(
+                    type="CrossEntropyLoss",
+                    use_sigmoid=False,
+                    class_weight=list(ce_class_weight),
+                    loss_weight=1.0,
+                ),
             ),
             auxiliary_head=None,
             train_cfg=dict(),
@@ -126,8 +141,8 @@ def build_seg_cfg(
                 test_mode=True,
             ),
         ),
-        val_evaluator=dict(type="IoUMetric", iou_metrics=["mIoU"], classwise=True),
-        test_evaluator=dict(type="IoUMetric", iou_metrics=["mIoU"], classwise=True),
+        val_evaluator=dict(type="CSDDFgIoUMetric", iou_metrics=["mIoU"], classwise=True),
+        test_evaluator=dict(type="CSDDFgIoUMetric", iou_metrics=["mIoU"], classwise=True),
         optim_wrapper=dict(type="OptimWrapper", optimizer=dict(type="AdamW", lr=lr, weight_decay=0.01)),
         param_scheduler=[
             dict(type="PolyLR", eta_min=1e-6, power=0.9, begin=0, end=max_epochs, by_epoch=True),

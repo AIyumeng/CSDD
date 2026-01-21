@@ -23,7 +23,7 @@
 conda create -n csdd python=3.10 -y
 conda activate csdd
 pip install -r requirements.txt
-pip install torch==2.2.2+cu121 torchvision==0.17.2+cu121 torchaudio==2.2.2+cu121 --index-url https://download.pytorch.org/whl/cu121
+pip install torch==2.1.2 torchvision==0.16.2 torchaudio==2.1.2 --index-url https://download.pytorch.org/whl/cu118
 python -m mim install "mmengine==0.10.7" "mmcv==2.1.0" "mmdet==3.3.0" "mmsegmentation==1.2.2"
 ```
 

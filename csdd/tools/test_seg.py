@@ -18,6 +18,8 @@ def main() -> None:
     register_all("seg")
     # Required for mmsegmentation==1.2.2: ensure the custom dataset class is registered.
     import csdd.data.seg_dataset  # noqa: F401
+    # Register custom metrics.
+    import csdd.metrics.fg_iou_metric  # noqa: F401
 
     from csdd.recipes.seg_unet import build_seg_cfg
 
@@ -27,16 +29,6 @@ def main() -> None:
     cfg.test_dataloader.dataset.split = args.split
     runner = Runner.from_cfg(cfg)
     metrics = runner.test()
-    # Convenience: also report mIoU excluding background if IoU array is available.
-    ious = metrics.get("IoU", None)
-    if ious is not None:
-        try:
-            ious_list = list(ious)
-            if len(ious_list) > 1:
-                miou_no_bg = sum(ious_list[1:]) / max(1, (len(ious_list) - 1))
-                metrics["mIoU_no_bg"] = float(miou_no_bg)
-        except TypeError:
-            pass
     print(metrics)
 
 

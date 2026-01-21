@@ -18,6 +18,8 @@ def main() -> None:
     register_all("seg")
     # Required for mmsegmentation==1.2.2: ensure the custom dataset class is registered.
     import csdd.data.seg_dataset  # noqa: F401
+    # Register custom metrics.
+    import csdd.metrics.fg_iou_metric  # noqa: F401
 
     from csdd.recipes.seg_unet import build_seg_cfg
 

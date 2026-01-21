@@ -6,6 +6,7 @@ import csdd.recipes.seg_unet
 csdd.recipes.seg_unet.build_seg_cfg.data_root = "data/CSDD_seg"
 csdd.recipes.seg_unet.build_seg_cfg.classes = ["background", "Scratches", "Spots", "Rusts"]
 csdd.recipes.seg_unet.build_seg_cfg.img_size = (1024, 1024)
+csdd.recipes.seg_unet.build_seg_cfg.ce_class_weight = (1.0, 33.7, 35.2, 33.9)
 
 # Training
 csdd.recipes.seg_unet.build_seg_cfg.work_dir = "work_dirs/seg"
