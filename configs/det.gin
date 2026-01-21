@@ -1,0 +1,18 @@
+# Detection config (MMDetection)
+
+import csdd.recipes.det_fasterrcnn
+
+# Dataset
+csdd.recipes.det_fasterrcnn.build_det_cfg.data_root = "data/CSDD_det"
+csdd.recipes.det_fasterrcnn.build_det_cfg.classes = ["Scratches", "Spots", "Rusts"]
+csdd.recipes.det_fasterrcnn.build_det_cfg.img_size = (1024, 1024)
+csdd.recipes.det_fasterrcnn.build_det_cfg.rpn_scales = (2, 4, 8)
+csdd.recipes.det_fasterrcnn.build_det_cfg.rcnn_class_weights = (1.0, 3.0, 2.2)
+
+# Training
+csdd.recipes.det_fasterrcnn.build_det_cfg.work_dir = "work_dirs/det"
+csdd.recipes.det_fasterrcnn.build_det_cfg.max_epochs = 24
+csdd.recipes.det_fasterrcnn.build_det_cfg.batch_size = 1
+csdd.recipes.det_fasterrcnn.build_det_cfg.num_workers = 2
+csdd.recipes.det_fasterrcnn.build_det_cfg.lr = 0.01
+csdd.recipes.det_fasterrcnn.build_det_cfg.seed = 42
